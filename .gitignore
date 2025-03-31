@@ -1,0 +1,7 @@
+.venv/
+data/
+*.csv
+*.ppt
+*.pptx
+*.zip
+.Rhistory

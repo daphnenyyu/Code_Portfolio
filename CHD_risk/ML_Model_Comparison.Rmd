@@ -1,0 +1,627 @@
+---
+title: "Model Comparison: Coronary Heart Disease Risk Prediction"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
+```
+
+```{r}
+#Load libraries and set seed
+library(table1)
+library(DescTools)
+library(dplyr)
+library(ggplot2) 
+library(rpart)
+library(rpart.plot)
+library(ROCit)
+library(ranger)
+library(caret)
+library(Matrix)
+library(xgboost)
+library(tibble)
+library(knitr)
+library(kableExtra)
+set.seed(12)
+
+# Create helper functions
+
+## Define function to identify and change categorical variables into factors ---
+fatorize_catagorical<-function(df) {
+  
+  numerical_variables<-c()
+  categorical_variables<-c()
+  
+  #Identify numerical variables and categorical variables
+  for (col in colnames(df)){
+    if(nrow(unique(df[col]))>20){
+      numerical_variables<-c(numerical_variables, col)
+    } else if (nrow(unique(df[col]))<=20){
+      categorical_variables<-c(categorical_variables, col)
+    }
+  }
+  
+  # Change categorical variables into factors
+  df[categorical_variables] <- lapply(df[categorical_variables], as.factor)
+  
+  # Code labels of factors
+  levels(df[["chd"]])<-c("No", "Yes")
+  
+  levels(df[["sex"]])<-c("Male", "Female")
+  levels(df[["race"]])<-c("White - Non-Hispanic", "Black - Non-Hispanic", "Hispanic", 
+                          "Other race only, Non-Hispanic", "Multiracial, Non-Hispanic")
+  age_gp_label<-c("18-24", "25-29", "30-34", "35-39", "40-44", "45-49", 
+                  "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80 or older")
+  levels(df[["age5y"]])<-age_gp_label
+  levels(df[["ever_married"]])<-c("No", "Yes")
+  
+  levels(df[["education"]])<-c("Did not graduate high school", 
+                               "Graduated high school", 
+                               "Attended college or technical school", 
+                               "Graduated from college or technical school")
+  levels(df[["income"]])<-c("Less than $15,000", "$15,000 to less than $25,000",
+                            "$25,000 to less than $35,000", "$35,000 to less than $50,000", 
+                            "$50,000 or more")
+  levels(df[["employment"]])<-c("Employed for wages", "Self-employed", 
+                                "Out of work for 1 year or more", 
+                                "Out of work for less than 1 year", 
+                                "A homemaker", "A student", "Retired")
+  
+  levels(df[["diabetes"]])<-c("No", "Yes")
+  levels(df[["hypertension"]])<-c("No", "Yes")
+  
+  levels(df[["smoke"]])<-c("Never smoked", "Current smoker", "Former smoker")
+  levels(df[["vegetable"]])<-c("Consumed less than one time per day", "Consumed one or more times per day")
+  levels(df[["fruit"]])<-c("Consumed less than one time per day", "Consumed one or more times per day")
+  levels(df[["exercise"]])<-c("No", "Yes")
+
+  # Return formatted dataframe
+  return(df)
+}
+
+
+
+## Define function that changes `age5g` into 3 categories 
+categorize_age3g <- function(age_range) {
+  if (age_range %in% c("18-24", "25-29", "30-34", "35-39", "40-44")) {
+    return("18-44")
+  } else if (age_range %in% c("45-49", "50-54", "55-59", "60-64")) {
+    return("45-65")
+  } else if (age_range %in% c("65-69", "70-74", "75-79", "80 or older")) {
+    return("65 or older")
+  } else {
+    return("Invalid age range")
+  }
+}
+
+
+
+## Define function that adds model AUC results to a data frame
+get_AUC<-function(model_roc){
+  model_AUC<-ciAUC(model_roc)
+  results<-c("AUC" = model_AUC[["AUC"]], 
+             "Lower.CI" = model_AUC[["lower"]], 
+             "Upper.CI" = model_AUC[["upper"]])
+  return(results)
+}
+
+
+## Define function that graphs variable importance
+  # Input = tibble containing `Feature` and `Importance` columns and graph
+
+graph_var_importance<-function(df, fig_number = 1 , model_name = "Model"){
+  # Reorder the factor levels of variables based on importance
+  df$Feature <- factor(df$Feature,
+                       levels=df$Feature[order(df$Importance, decreasing = FALSE)])
+
+  # Create plot of variable importance
+  title = paste0("Variable Importance with ", model_name)
+  caption = paste0("Fig. ", fig_number, ". Importance of variables in predicting the occurrence of CHD with a ", model_name, ".")
+  ggplot(df, aes(x = Feature, y = Importance)) +
+    geom_pointrange(aes(ymin = 0, ymax = Importance), color = "cadetblue", size = .3) +
+    theme_minimal() +
+    coord_flip() +
+    labs(x = "", y = "", title = title, caption = caption) 
+}
+
+## Define function to calculate metrics
+calculate_metrics <- function(prediction_score, actual_labels) {
+
+  predictions <- ifelse(prediction_score > 0.5, 1, 0)
+
+  # Calculate confusion matrix
+  confusion <- table(Actual = actual_labels, Predicted = predictions)
+  
+  # Calculate true positives, true negatives, false positives, and false negatives
+  TP <- confusion[2, 2]
+  TN <- confusion[1, 1]
+  FP <- confusion[1, 2]
+  FN <- confusion[2, 1]
+  
+  
+  # Calculate metrics
+  accuracy <- (TP+TN) / (TP +TN + FN + FP)
+  precision <- TP / (TP + FP)
+  recall <- TP / (TP + FN)
+  f1_score <- 2 * precision * recall / (precision + recall)
+  
+  # Return metrics
+  metrics <- c(Accuracy = accuracy, Precision = precision, Recall = recall, F1_Score = f1_score)
+  return(metrics)
+}
+
+
+## Define function to format table output of performance metrics and AUROC
+
+format_metricstable <- function(table) {
+  table %>%
+    mutate(
+      Accuracy = round(Accuracy, 4),
+      Precision = round(Precision, 4),
+      Recall = round(Recall, 4),
+      F1_Score = round(F1_Score, 4),
+      AUC = glue::glue("{round(AUC,4)} [{round(Lower.CI,4)}, {round(Upper.CI,4)}]")
+    ) %>%
+    dplyr::select(Model,
+                  Accuracy,
+                  Precision,
+                  Recall,
+                  `F1 Score` = F1_Score,
+                  `AUC [lci, uci]` = AUC) 
+}
+```
+
+::: {style="text-align: center;"}
+# Biostat 216 Final Project
+:::
+
+## Introduction
+
+Coronary heart disease (CHD) is a common health risk for men above the age of 45 and for women above age of 55. It is often caused by plaque build-up in blood vessels, obstructing blood flow, preventing sufficient oxygen from reaching the heart.[1] Extensive analysis in cohort studies such as the Framingham study identified risk factors of CHD include age progression, family history, cholesterol profile, hypertension, diabetes, lack of exercise and smoking status.[2] Although many prediction models were built to estimate CHD risk. Many of them included clinical data such as LDL-C count, HDL-C counts, systolic blood pressure, and diastolic blood pressure. [3]
+
+## Goal
+
+This study aims to create a cost-effective and personalized method for predicting coronary heart disease (CHD) risk using non-clinical data. Instead of relying solely on clinical metrics like cholesterol levels or blood pressure, the model will incorporate demographic, socioeconomic, and behavioral factors to make CHD risk assessment more accessible.
+
+## Methods
+
+**1. Data Source**
+
+-   Behavioral Risk Factor Surveillance System (BFRSS) is a nation-wide survey conducted through telephone calls into households in the United States. [4, 5]
+
+-   Survey data from 2015 was downloaded from Kaggle[4] and processed using Python for data cleaning.
+
+**2. Variables**
+
+-   **Outcome**: the diagnosis of angina or coronary heart disease (CHD).
+
+-   **Predictors**: 15 predictors were selected
+
+    -   *Demographic variables*: sex, race, age, and marital status (ever married).
+
+    -   *Socioeconomic status variables*: education, income, and employment.
+
+    -   *Health-related factors*: diabetes, hypertension, and body mass index (BMI).
+
+    -   *Behavioral variables*: smoking, vegetable consumption, fruit consumption, binge drinking, and exercise.
+
+**3. Inclusion / Exclusion**
+
+-   **Inclusion:** Anyone with a CHD diagnosis result at 2015.
+
+-   **Exclusions:** Individuals with hypertension only during pregnancy or those classified as borderline high or pre-hypertensive were excluded.
+
+**4. Data Balancing**
+
+-   The data showed an imbalance in CHD cases and controls after data cleaning: 140,466 controls vs. 5,915 cases.
+
+-   To balance the classes, a random sample of 5,915 individuals without CHD was selected, creating a subsample of 11,830 individuals.
+
+-   **Data split**: 3:1:1 ratio for model training, validation, and testing
+
+**5. Model Selection & Hyperparameter Tuning**
+
+-   **Model Training & Validation:** Three models were chosen for prediction and feature importance analysis
+
+    -   **Simple regression tree:** Tuned using internal cross-validation within the `rpart` package, with pruning based on the best complexity parameter (cp) value.
+
+    -   **Random forest:** Hyperparameters were tuned using 3-fold cross-validation within the `caret` package.
+
+    -   **XGBoost:** Hyperparameters were fine-tuned using built-in cross-validation from the `xgboost` package.
+
+-   **Model Testing:**
+
+    -   The final model was re-trained on the combined data of training plus validation datasets and evaluated on the held-out testing set.
+
+    -   Final model was selected according to metrics such as ***accuracy , precision, recall, f1 score, and AUROC (Area Under Receiver Operating Characteristic curve)***.
+
+**6. Feature Importance**
+
+-   For the **simple regression tree** and **random forest**, feature importance was assessed using the ***Gini index***.
+
+-   For **XGBoost**, feature importance was measured using the ***gain criterion***.
+
+```{r}
+# Load data 
+data<-read.csv("cleaned_data.csv")
+dataN<-data[sample(seq(nrow(data))),] #shuffle data 
+
+# Format categorical variables
+  # keep dataN as numerical variable
+dataC<-fatorize_catagorical(dataN)
+
+
+dataEDA<-dataC
+
+dataEDA$age3g<-sapply(dataEDA$age5y, categorize_age3g)
+
+names(dataEDA)<-c("CHD", "Sex", "Race", "Age in 5-Year Group", 
+                  "Ever Married", "Education", "Income", 
+                  "Employment Status","Diabetes", "Hypertension", "BMI", 
+                  "Smoking Status", "Vegetable consumption", 
+                  "Fruit consumption", 
+                  "Times of binge drinking in past 30 days", "Exercise",
+                  "Age Group")
+
+```
+
+## Results
+
+### Demographics
+
+Table 1 presents the socio-demographic characteristics among subsampled individuals from the 2015 BRFSS responses. Of the 11830 individuals surveyed, there is a slight imbalance in participants gender: around 61.0% were male. The majority (81.3%) were white non-Hispanic. Nearly half of the participants (48.3%) were above the age of 65 years. Most (96.4%) graduated at least high school with 48% completed college or technical school. A high percentage (89.9%) of participants have married. The annual household income of 59.3% of the participants were above \$50,000.
+
+```{r}
+captiont1 <- "Table 1 - Socio-demographic characteristics of subsampled BRFSS 2015 participants"
+footnote <- ""
+table1(~ Sex + Race + `Age Group` + `Ever Married` + `Education` + `Income` | CHD, data = dataEDA, caption = captiont1, footnote = footnote)
+```
+
+### Model Training
+
+```{r data_prep, fig.show='hide'}
+##code block format{r, fig.show='hide'}
+
+
+# MODEL TRAINING 
+
+# Data preparation ----
+# Split training and testing data with caret 
+split_train_test <- createDataPartition(y = dataN$chd, p = 0.8, list = FALSE)
+split_train_val <- createDataPartition(y = dataN$chd[split_train_test], p = 0.75, list = FALSE)
+
+# Record index vectors for training, testing, validation datasets 
+total_idx<-seq(nrow(dataN))
+test_idx <- total_idx[!total_idx %in%  split_train_test]
+train_idx<-split_train_test[split_train_val]
+val_idx<-split_train_test[-split_train_val]
+
+
+glue::glue("
+-----  Data Split  ----- 
+Total number of samples: {length(total_idx)}
+Number of training samples: {length(train_idx)}
+Number of validation samples: {length(val_idx)}
+Number of testing samples: {length(test_idx)}
+           ")
+
+
+
+# Simple Regression Tree ----
+## Fit first simple regression tree
+data_train <- dataC[train_idx, ]
+data_val <- dataC[val_idx, ]
+
+chd_rpart <- rpart(chd~., method="class", data=data_train, cp=0.0001) 
+plotcp(chd_rpart, upper="splits")
+
+```
+
+```{r, fig.show='hide', results=FALSE}
+## code block format{r, fig.show='hide', results=FALSE}
+
+## Prune 
+  # Select cp for pruning (just below minimum xerror+xstd threshold)
+cp_table<-data.frame(chd_rpart$cptable)
+threshold<-cp_table$xerror[which.min(cp_table$xerror)]+cp_table$xstd[which.min(cp_table$xerror)] 
+chd_pruned_rpart <- prune(chd_rpart, 
+                          cp=cp_table$CP[which.max(cp_table$xerror<threshold)])
+glue::glue("
+-----   Regression tree: optimal hyperparameters  ----- 
+Cross-Validation Error Threshold: {threshold}
+Optimal number of splits: {cp_table$nsplit[which.max(cp_table$xerror<threshold)]}")
+
+
+
+# Random forest  ----
+data_rf<-dataC
+data_train<-data_rf[train_idx,]
+data_val<-data_rf[val_idx,]
+
+
+## Set up the cross-validation scheme for hyperparameter tuning
+train_control <- trainControl(method = "cv",
+                              number = 3, 
+                              search = "grid",
+                              classProbs = T)
+paramDF <- expand.grid(mtry=1:14, 
+                       splitrule = "gini", 
+                       min.node.size = 1)
+
+## Perform the grid search using caret
+chd_rf_cv <- train(chd~., data = data_train,
+                   method = "ranger",
+                   trControl = train_control,
+                   tuneGrid = paramDF,
+                   importance = "impurity", 
+                   metric = "AUC")
+
+## Use best parameter values to train new random forest get feature importance
+chd_rf <- ranger(chd~., data = data_train,
+                 num.trees = chd_rf_cv$finalModel$num.trees,
+                 mtry=chd_rf_cv$finalModel$mtry, 
+                 importance = chd_rf_cv$finalModel$importance.mode, 
+                 splitrule = chd_rf_cv$finalModel$splitrule, 
+                 min.node.size = chd_rf_cv$finalModel$min.node.size, 
+                 probability = TRUE)
+
+## Print final model hyperparameters
+glue::glue("
+-----   Random forest: optimal hyperparameters  ----- 
+Number of trees: {chd_rf_cv$finalModel$num.trees}
+Number of variables to split at each node: {chd_rf_cv$finalModel$mtry}
+Minimal node size: {chd_rf_cv$finalModel$min.node.size}
+           ")
+
+
+# XGboost ----
+
+  # Prepare data
+xgbTrain_x <- sparse.model.matrix(chd ~ . - 1, data = dataC[train_idx, ], sep=": ")
+xgbVal_x <- sparse.model.matrix(chd ~ . - 1, data = dataC[val_idx, ], sep=": ")
+output_vector <- ifelse(dataC$chd=="Yes", 1, 0)
+  # Format inputs for xgboost 
+xgbTrain <- xgb.DMatrix(xgbTrain_x, label = output_vector[train_idx])
+xgbVal <- xgb.DMatrix(xgbVal_x, label = output_vector[val_idx])
+
+
+# The set param df and train to find best hyperparameters
+paramDF <- expand.grid(
+  eta = c(0.05, 0.1, 0.5), 
+  gamma = c(0,100),
+  max_depth = c(2L, 5L, 10L), 
+  nrounds = c(100, 500, 1000))
+
+best_params <- NULL
+best_metric <- -Inf 
+
+# Iterate over each combination of parameters
+for (i in 1:nrow(paramDF)) {
+  params <- paramDF[i, ]
+  
+  # Perform cross-validation with current parameters
+  cv_result <- xgb.cv(data = xgbTrain,  # Provide your data here
+                      nfold = 3,       # Number of folds for cross-validation
+                      params = list(objective = "binary:logistic",  # Objective function
+                                    eval_metric = "auc",  # Evaluation metric
+                                    eta = params$eta,
+                                    gamma = params$gamma,
+                                    max_depth = params$max_depth),
+                      nrounds = params$nrounds,   # Number of boosting rounds
+                      early_stopping_rounds = 20,  # Early stopping rounds
+                      verbose = FALSE)  # Suppress verbose output
+  
+  # Check if current parameters yield better results
+  mean_auc <- tail(cv_result$evaluation_log$test_auc_mean, 1)
+  if (mean_auc > best_metric) {
+    best_metric <- mean_auc
+    best_params <- params
+  }
+}
+
+# Retrain best model with validation data 
+watchlist <- list(train = xgbTrain, eval = xgbVal)
+chd_xgb <- xgb.train(xgbTrain, nrounds = best_params$nrounds, 
+                     params=list(eta=best_params$eta,
+                                 gamma=best_params$gamma, 
+                                 max_depth=best_params$max_depth, 
+                                 objective="binary:logistic", 
+                                 eval_metric = "auc"), 
+                     verbose = 0, 
+                     early_stopping_rounds = 20, 
+                     watchlist=watchlist)
+
+ggplot(chd_xgb$evaluation_log, aes(x = iter)) +
+  geom_line(aes(y = train_auc, color = "Train")) +
+  geom_line(aes(y = eval_auc, color = "Validation" )) +
+  scale_color_manual(name = "Data", values = c("Train" = "red", "Validation" = "blue")) +
+  labs(x = "Iterations", y = "AUC") +
+  theme_minimal()
+
+## Print final model hyperparameters
+glue::glue("
+-----   XGBoost: optimal hyperparameters  ----- 
+Number of boosting rounds: {best_params$nrounds}
+learning rate: {best_params$eta}
+gamma (minimum loss reduction): {best_params$gamma}
+maximum depth of a tree: {best_params$max_depth}")
+```
+
+### Model Comparison
+
+We compared the performance of simple regression tree, random forest, and XGBoost on the validation dataset. Table 2 and Table 3 shows performance evaluation of accuracy , precision, recall, F1 score, and AUROC. The metrics given the most importance is recall as we would like to be able to detect risk of CHD to implement any early mediation. XGBoost was the best performing model with highest accuracy, recall, F1 score, and AUROC.
+
+```{r}
+## Metrics Table ----
+# Get prediction scores
+pruned_rpart_predscore<-predict(chd_pruned_rpart, newdata=data_val, type="prob")[,2]
+
+pred_rf<-predict(chd_rf, data=data_val, type="response")
+chd_rf_predscore<-pred_rf$predictions[,2]
+
+chd_xgb_predscore<-predict(chd_xgb, newdata=xgbVal, type="response")
+
+# Calculate ROC 
+pruned_rpart_roc<-rocit(score=pruned_rpart_predscore, class=data_val$chd)  #regression tree
+chd_rf_roc<-rocit(score=chd_rf_predscore, class=data_val$chd)  # random forest
+chd_xgb_roc<-rocit(score=chd_xgb_predscore, class=data_val$chd)  # XGBoost
+
+
+# Get metrics and AUROC
+bind_rows(
+  c(calculate_metrics(pruned_rpart_predscore, data_val$chd), get_AUC(pruned_rpart_roc)), 
+  c(calculate_metrics(chd_rf_predscore, data_val$chd), get_AUC(chd_rf_roc)),
+  c(calculate_metrics(chd_xgb_predscore, data_val$chd), get_AUC(chd_xgb_roc)) 
+  ) %>% 
+  # Format
+  mutate(Model = c("Simple Regression Tree", "Random Forest", "XGBoost")) %>% 
+  format_metricstable() %>% 
+  # Print metrics table
+  kable(caption = "Table 2: Validation Set Performance Metrics and AUROC") %>%
+  kable_styling(full_width = F, font_size = 14)
+
+```
+
+### Model Selection and Testing
+
+XGBoost was selected to train on the combined training and validation dataset before testing on the held-out testing dataset.
+
+```{r}
+  ## Prepare data
+xgbfTrain_x <- sparse.model.matrix(chd ~ . - 1, data = dataC[c(train_idx,val_idx), ], sep=": ")
+xgbTest_x <- sparse.model.matrix(chd ~ . - 1, data = dataC[test_idx, ], sep=": ")
+output_vector <- ifelse(dataC$chd=="Yes", 1, 0)
+  ## Format inputs for xgboost 
+xgbfTrain <- xgb.DMatrix(xgbfTrain_x, label = output_vector[c(train_idx,val_idx)])
+xgbTest <- xgb.DMatrix(xgbTest_x, label = output_vector[test_idx])
+
+  ## Re-train on training +validation set 
+  ## Test on final heldout test set
+watchlist <- list(train = xgbTrain, eval = xgbTest)
+final_model <- xgb.train(xgbTrain, nrounds = best_params$nrounds, 
+                         params=list(eta=best_params$eta,
+                                     gamma=best_params$gamma, 
+                                  max_depth=best_params$max_depth, 
+                                  objective="binary:logistic", 
+                                  eval_metric = "auc"), 
+                         verbose = 0, 
+                         early_stopping_rounds = 20, 
+                         watchlist=watchlist)
+ggplot(final_model$evaluation_log, aes(x = iter)) +
+  geom_line(aes(y = train_auc, color = "Train")) +
+  geom_line(aes(y = eval_auc, color = "Testing" )) +
+  scale_color_manual(name = "Data", values = c("Train" = "red", "Testing" = "blue")) +
+  labs(x = "Iterations", y = "AUC") +
+  theme_minimal()
+```
+
+Testing results showed that the final XGBoost model had slightly lower recall at 0.795.
+
+```{r}
+# Get prediction scores
+final_model_predscore<-predict(final_model, newdata=xgbTest, type="response")
+final_model_roc<-rocit(score=final_model_predscore, class=dataC[test_idx, "chd"])
+
+# Get metrics
+bind_rows(c(calculate_metrics(final_model_predscore, dataC[test_idx, "chd"]),
+        get_AUC(final_model_roc))) %>% 
+  # Format
+  mutate(Model = c("Final XGBoost Model")) %>% 
+  format_metricstable() %>% 
+  # Print table
+  kable(caption = "Table 3: Final Model Test Set Performance Metrics and AUROC") %>%
+  kable_styling(full_width = F, font_size = 14)
+```
+
+```{r}
+# Plot AUC curves
+ggplot()+
+  geom_abline(slope=1,intercept=0, color = "grey", linetype = "dashed")+
+
+  geom_line(data=data.frame("TPR"=pruned_rpart_roc$TPR,"FPR"=pruned_rpart_roc$FPR) , aes(x=FPR, y=TPR, color = "Simple Regression Tree")) +
+  geom_line(data=data.frame("TPR"=chd_rf_roc$TPR,"FPR"=chd_rf_roc$FPR) , aes(x=FPR, y=TPR,  color = "Random Forest")) +
+  geom_line(data=data.frame("TPR"=chd_xgb_roc$TPR,"FPR"=chd_xgb_roc$FPR) , aes(x=FPR, y=TPR,  color = "XGBoost")) +
+  geom_line(data=data.frame("TPR"=final_model_roc$TPR,"FPR"=final_model_roc$FPR) , aes(x=FPR, y=TPR,  color = "Final Model - XGBoost")) +
+  
+  labs(title = "ROC Curves", x = "1-Specificity (FPR)", 
+       y = "Sensitivity (TPR)", color = "Model", 
+       caption = "Fig. 1: ROC curve for Simple Regression Tree, Random Forest, and XGBoost Models") +
+  scale_color_hue(labels = c("Simple Regression Tree", "Random Forest", "XGBoost", "Final Model - XGBoost"))
+       
+```
+
+### Feature importance analysis
+
+The most importance features were preserved across models.
+
+-   Fig. 2 and 3 shows that **5-year age groups** is the most important feature in simple regression tree and random forest.
+
+-   XGBoost models show some agreement with age as one of the most important features. As shown in Fig. 4 and 5, among the top 15 important features of the XGBoost models, different categories of age appears in high frequency. Other variables that were also highly important in different models include hypertension and employment.
+
+```{r}
+# Generate variable importance graphs for each model 
+
+# Simple Regression
+  # Create tibble to hold variable importance 
+pruned_rpart_vi <-chd_pruned_rpart$variable.importance %>% data.frame() %>%
+                        rownames_to_column(var = "Feature") %>% rename(Importance = '.') 
+  # Create plot of variable importance
+graph_var_importance(pruned_rpart_vi, 2, "Simple Regression")
+
+
+# Random Forest
+  # Create tibble to hold variable importance 
+chd_rf_vi <-chd_rf$variable.importance %>% data.frame() %>%
+                        rownames_to_column(var = "Feature") %>% rename(Importance = '.') 
+  # Create plot of variable importance
+graph_var_importance(chd_rf_vi, 3, "Random Forest")
+
+# XGBoost
+  # Create tibble to hold variable importance 
+xgb_vi_gain <- xgb.importance(feature_names = colnames(xgbTrain_x), model = chd_xgb)[,c(1,2)]
+names(xgb_vi_gain)<-c("Feature", "Importance")
+  # Create plot of variable importance
+graph_var_importance(xgb_vi_gain[1:15,], 4, "XGBoost")
+
+# Final XGBoost Model 
+  # Create tibble to hold variable importance 
+final_vi <- xgb.importance(feature_names = colnames(xgbTrain_x), model = final_model)[,c(1,2)]
+names(final_vi)<-c("Feature", "Importance")
+  # Create plot of variable importance
+graph_var_importance(final_vi[1:15,], 5, "Final XGBoost Model")
+```
+
+## Discussion
+
+In this project, we presented a model that predicts CHD risk using questionnaire data. We fit the final XGBoost model and found the final model to have \~75.4% accuracy, 73.5 % precision, 79.5% recall and 76.3% F1-score. We also found that among all predictors, age group, hypertension, and employment seemed to be the most important variables in all models.
+
+**Limitations:**
+
+-   The analysis of AUROC may not be applicable in random forests because adjusting the decision “threshold” in a random forest does not make sense as it use results of classification from different trees to predict outcome. However, AUROC prediction was enabled though using prediction for out of bag data.
+
+-   Comparing feature importance in XGBoost models to feature importance from regression tree or random forest is difficult because of the data format required by XGBoost model. XGBoost model requires categorical variables to be one-hot encoded into binary variables for each level in the categorical variable, distributing the importance of the original categorical variable among the binary variables created from it. An example of this from our models is the categorical variable of 5-year age group `age5y`. It may also have caused the inflated importance values for the binary variables representing rare categories such as age 80 or older, as they may be associated with high gains due to their sparsity.
+
+-   Due to the limitation of the of the survey, we were not able to include other commonly known risk factors such as continuous age variable or family history. Since, 5-year age group `age5y` was found to be a strong predictor of CHD risk, it may be desirable to distinguish other predictors within each age group by regrouping age categories and including age as a continuous predictor.
+
+**Strengths:**
+
+-   All models were able to predict CHD risk with higher recall and accuracy than random guess.
+
+-   XGBoost model correctly identified 79.5% of CHD cases.
+
+-   Samples are representative of a large population.
+
+**Conclusion:** In this project, we demonstrated the feasibility of modelling CHD risk from questionnaire data using XGBoost model. The accuracy of the model could benefit from the inclusion of more related variables and the selection of primary variables according to feature importance. Overall, the
+
+## References
+
+[1] Coronary Heart Disease - Causes and Risk Factors \| NHLBI, NIH. NHLBI, NIH. <https://www.nhlbi.nih.gov/health/coronary-heart-disease/causes>.
+
+[2] Grundy, S. M., Balady, G. J., Criqui, M. H., Fletcher, G., Greenland, P., Hiratzka, L. F., Houston-Miller, N., Kris-Etherton, P., Krumholz, H. M., LaRosa, J., Ockene, I. S., Pearson, T. A., Reed, J., Washington, R., & Smith, S. C. (1998). Primary Prevention of Coronary Heart Disease: Guidance From Framingham. Circulation, 97(18), 1876–1887. <https://doi.org/10.1161/01.CIR.97.18.1876>
+
+[3] Wilson, P. W. F., D’Agostino, R. B., Levy, D., Belanger, A. M., Silbershatz, H., & Kannel, W. B. (1998). Prediction of Coronary Heart Disease Using Risk Factor Categories. Circulation, 97(18), 1837–1847. <https://doi.org/10.1161/01.CIR.97.18.1837>
+
+[4] Centers for Disease Control and Prevention. (2017, August 24). Behavioral risk factor surveillance system. Kaggle. <https://www.kaggle.com/datasets/cdc/behavioral-risk-factor-surveillance-system>
+
+[5] National Center for Chronic Disease Prevention and Health Promotion, Division of Population Health. (2014, May 16). About BRFSS. Centers for Disease Control and Prevention. <https://www.cdc.gov/brfss/about/index.htm>
