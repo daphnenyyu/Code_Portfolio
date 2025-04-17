@@ -40,7 +40,7 @@ We analyzed the association between mtHz and mtHg with cognitive performance in 
 
 ### Model Comparison of Coronary Heart Disease Risk Prediction from Nation-Wide Survey
 
-**Code:** Model_Comparison.Rmd
+**Code:** [Model_Comparison.Rmd](CHD_risk/ML_model_comparison/ML_Model_Comparison.Rmd)
 
 **Goal:** Create a cost-effective and personalized machine learning model for predicting coronary heart disease (CHD) risk using non-clinical data
 
@@ -57,3 +57,27 @@ This project aims to predict coronary heart disease (CHD) risk using data from t
 -   XGBoost was identified as the best-performing model, with \~75.4% accuracy, 73.5 % precision, 79.5% recall and 76.3% F1-score. Recall was the the most crucial metric, indicating its potential as a pre-clinical screening model for early CHD risk detection and intervention.
 
 -   Feature importance analysis showed that age, hypertension, and employment were among the most important predictors across models.
+
+
+### Using unsupervised machine learning to identify performance profiles of F1 drivers over the past two decades 
+
+**Code:** [F1_clustering](F1_clustering)
+
+**Goal:** 
+
+1. Explore data and create a dataset to be used in unsupervised machine learning 
+2. Identify performance profiles of F1 drivers
+
+**Description:** This project aims to use K means clustering to identify driver performance profiles. 
+
+**Skills:** SQL, Kmeans, hyperparameter tuning, data interpretation and visualization
+
+**Technology:**
+
+SQL - Joins, Common Table Expression, Temp Tables, Windows Functions, Aggregate Functions
+
+Python - KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
+
+**Results:**
+
+
