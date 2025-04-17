@@ -16,9 +16,15 @@
 
     -   Convolution Neural Network Modelling of Coronary Heart Disease Risk
 
+    -   Idenitfying F1 Driver Performance Profiles with Clustering
+
 -   UNIX
 
     -   Assessing mtDNA Variation and Cognitive Function
+
+-   SQL 
+
+    -   Idenitfying F1 Driver Performance Profiles with Clustering
 
 ## Projects
 
@@ -70,13 +76,13 @@ This project aims to predict coronary heart disease (CHD) risk using data from t
 
 **Description:** This project aims to use K means clustering to identify driver performance profiles. 
 
-**Skills:** SQL, Kmeans, hyperparameter tuning, data interpretation and visualization
+**Skills:** database design, variable engineering, hyperparameter tuning, data interpretation and visualization
 
 **Technology:**
 
-SQL - Joins, Common Table Expression, Temp Tables, Windows Functions, Aggregate Functions
+* SQL - Joins, Common Table Expression, Temp Tables, Windows Functions, Aggregate Functions
 
-Python - KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
+* Python - KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
 
 **Results:**
 
