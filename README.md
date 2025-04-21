@@ -44,6 +44,8 @@ We analyzed the association between mtHz and mtHg with cognitive performance in 
 
 **Results:** mtHg, not mtHz, is associated with cognitive function at midlife. Results remained robust in sensitivity analysis.
 
+
+
 ### Model Comparison of Coronary Heart Disease Risk Prediction from Nation-Wide Survey
 
 **Code:** [Model_Comparison.Rmd](CHD_risk/ML_model_comparison/ML_Model_Comparison.Rmd)
@@ -65,6 +67,7 @@ This project aims to predict coronary heart disease (CHD) risk using data from t
 -   Feature importance analysis showed that age, hypertension, and employment were among the most important predictors across models.
 
 
+
 ### Using unsupervised machine learning to identify performance profiles of F1 drivers over the past two decades 
 
 **Code:** [F1_clustering](F1_clustering)
@@ -84,6 +87,6 @@ This project aims to predict coronary heart disease (CHD) risk using data from t
 
 * Python - KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
 
-**Results:**
+**Results:** Using Kmeans clustering, we catagorized drivers into 6 categories : Top Performers, Above Average Veterans, Underdogs, Mediocre Drivers, Passive Drivers, and Worst Drivers. 
 
 
