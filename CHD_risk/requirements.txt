@@ -1,0 +1,12 @@
+numpy
+pandas
+matplotlib
+tensorflow
+imblearn
+ydata-profiling
+matplotlib
+tensorflow
+torch 
+sqlalchemy
+ydata_profiling
+ipython

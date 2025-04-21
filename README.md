@@ -33,15 +33,18 @@
 
 ### Model Comparison of Coronary Heart Disease Risk Prediction 
 
-- **Code:** [Model_Comparison.Rmd](CHD_risk/ML_model_comparison/ML_Model_Comparison.Rmd)
+- **Code:** [Clean_Data.ipynb](CHD_risk/Clean_Data.ipynb), [Model_Comparison.Rmd](CHD_risk/ML_model_comparison/ML_Model_Comparison.Rmd)
 
 - **Goal:** Create a cost-effective and personalized machine learning model for predicting coronary heart disease (CHD) risk using non-clinical data
 
 - **Description:** This project aims to predict coronary heart disease (CHD) risk using data from the 2015 Behavioral Risk Factor Surveillance System (BRFSS) survey. Key risk factors for CHD, including demographic, socioeconomic, health, and behavioral variables, were used to build predictive models. The project focused on balancing the dataset and applying machine learning techniques such as decision trees, random forests, and XGBoost to improve prediction accuracy and interpretability.
 
-- **Skills:** machine learning, model comparison, metrics calculation from confusion matrix, data visualization
+- **Skills:** downsampling, machine learning, model comparison, metrics calculation from confusion matrix, data visualization
 
-- **Technology:** dyplr, ,table1, rpart, ranger, caret, xgboost, rocit, ciAUC, kable, ggplot
+- **Technology:** 
+
+    - [Python] dictionary mapping, pandas, matplotlib, seaborn
+    - [R] dyplr, ,table1, rpart, ranger, caret, xgboost, rocit, ciAUC, kable, ggplot
 
 - **Results:**
 
@@ -66,9 +69,9 @@
 
 - **Technology:**
 
-    - SQL - Joins, Common Table Expression, Temp Tables, Windows Functions, Aggregate Functions
+    - [SQL] Joins, Common Table Expression, Temp Tables, Windows Functions, Aggregate Functions
     
-    - Python - KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
+    - [Python] KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
 
 - **Results:** Using Kmeans clustering, we catagorized drivers into 6 categories : Top Performers, Above Average Veterans, Underdogs, Mediocre Drivers, Passive Drivers, and Worst Drivers. 
 
