@@ -8,7 +8,7 @@
 
     -   [Behavioral Risk Factor Surveillance System Data Cleaning](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (Python)
 
-    -   [Model Comparison of Coronary Heart Disease Risk Prediction](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (Python)
+    -   [Model Comparison of Coronary Heart Disease Risk Prediction](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (R)
 
     -   [Idenitfying F1 Driver Performance Profiles with Clustering](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#idenitfying-f1-driver-performance-profiles-with-clustering) (Python, SQL)
 
