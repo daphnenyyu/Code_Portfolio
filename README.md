@@ -4,25 +4,14 @@
 
 -   Projects
 
--   R
+    -   [Assessing mtDNA Variation and Cognitive Function](https://github.com/daphnenyyu/Code_Portfolio?tab=readme-ov-file#assessing-mtdna-variation-and-cognitive-function-midlife) (R, UNIX)
 
-    -   [Assessing mtDNA Variation and Cognitive Function](https://github.com/daphnenyyu/Code_Portfolio?tab=readme-ov-file#assessing-mtdna-variation-and-cognitive-function-midlife)
+    -   [Behavioral Risk Factor Surveillance System Data Cleaning](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (Python)
 
-    -   [Model Comparison of Coronary Heart Disease Risk Prediction](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction)
+    -   [Model Comparison of Coronary Heart Disease Risk Prediction](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (Python)
 
--   Python
+    -   [Idenitfying F1 Driver Performance Profiles with Clustering](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#idenitfying-f1-driver-performance-profiles-with-clustering) (Python, SQL)
 
-    -   [Behavioral Risk Factor Surveillance System Data Cleaning](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction)
-
-    -   [Idenitfying F1 Driver Performance Profiles with Clustering](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#idenitfying-f1-driver-performance-profiles-with-clustering)
-
--   UNIX
-
-    -   [Assessing mtDNA Variation and Cognitive Function](https://github.com/daphnenyyu/Code_Portfolio?tab=readme-ov-file#assessing-mtdna-variation-and-cognitive-function-midlife)
-
--   SQL 
-
-    -   [Idenitfying F1 Driver Performance Profiles with Clustering](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#idenitfying-f1-driver-performance-profiles-with-clustering)
 
 ## Projects
 
