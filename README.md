@@ -28,19 +28,19 @@
 
 ### Assessing mtDNA Variation and Cognitive Function Midlife
 
-**Code:** [CARDIA mtDNA Github](https://github.com/AndrewsLabUCSF/mtDNAhtz_CARDIA)
+- **Code:** [CARDIA mtDNA Github](https://github.com/AndrewsLabUCSF/mtDNAhtz_CARDIA)
 
-**Goal:** To assess if mitochondrial heteroplasmy (mtHz) bruden or haplogroups (mtHg) are associated with cognitive performance in a multiracial midlife cohort
+- **Goal:** To assess if mitochondrial heteroplasmy (mtHz) bruden or haplogroups (mtHg) are associated with cognitive performance in a multiracial midlife cohort
 
-**Description:**
+- **Description:**
 
-We analyzed the association between mtHz and mtHg with cognitive performance in the Coronary Artery Risk Development in Young Adults (CARDIA) study. Mitochondrial DNA (mtDNA) sequencing data was processed through a Nextflow pipeline with custom Bash script. Associations were analyzed using linear regression and linear mixed models in R. We implemented linear regression models to assess the cross-sectional associations between mtHz and mtHg with z-standardized cognitive performance, adjusting for education, race, age, and sex. Longitudinal analysis was conducted using linear mixed models. Sensitivity analyses, additionally adjusting for social determinants of health (SDOH) or *APOE ε4,* lifestyle variables, and comorbidities were conducted to test the robustness of our findings.
+        We analyzed the association between mtHz and mtHg with cognitive performance in the Coronary Artery Risk Development in Young Adults (CARDIA) study. Mitochondrial DNA (mtDNA) sequencing data was processed through a Nextflow pipeline with custom Bash script. Associations were analyzed using linear regression and linear mixed models in R. We implemented linear regression models to assess the cross-sectional associations between mtHz and mtHg with z-standardized cognitive performance, adjusting for education, race, age, and sex. Longitudinal analysis was conducted using linear mixed models. Sensitivity analyses, additionally adjusting for social determinants of health (SDOH) or *APOE ε4,* lifestyle variables, and comorbidities were conducted to test the robustness of our findings.
 
-**Skills:** bash scripting, data analysis, hypothesis testing, post-hoc testing, sensitivity tests, data visualization
+- **Skills:** bash scripting, data analysis, hypothesis testing, post-hoc testing, sensitivity tests, data visualization
 
-**Technology:** nextflow pipeline, dyplr, ggplot, lm, lmer, effects, glht
+- **Technology:** nextflow pipeline, dyplr, ggplot, lm, lmer, effects, glht
 
-**Results:** mtHg, not mtHz, is associated with cognitive function at midlife. Results remained robust in sensitivity analysis.
+- **Results:** mtHg, not mtHz, is associated with cognitive function at midlife. Results remained robust in sensitivity analysis.
 
 
 
