@@ -6,7 +6,7 @@
 
 -   R
 
-    -   Assessing mtDNA Variation and Cognitive Function
+    -   [Assessing mtDNA Variation and Cognitive Function](https://github.com/daphnenyyu/Code_Portfolio?tab=readme-ov-file#assessing-mtdna-variation-and-cognitive-function-midlife)
 
     -   Model Comparison of Coronary Heart Disease Risk Prediction
 
@@ -14,13 +14,11 @@
 
     -   Behavioral Risk Factor Surveillance System Data Cleaning
 
-    -   Convolution Neural Network Modelling of Coronary Heart Disease Risk
-
     -   Idenitfying F1 Driver Performance Profiles with Clustering
 
 -   UNIX
 
-    -   Assessing mtDNA Variation and Cognitive Function
+    -   [Assessing mtDNA Variation and Cognitive Function](https://github.com/daphnenyyu/Code_Portfolio?tab=readme-ov-file#assessing-mtdna-variation-and-cognitive-function-midlife)
 
 -   SQL 
 
@@ -46,7 +44,7 @@ We analyzed the association between mtHz and mtHg with cognitive performance in 
 
 
 
-### Model Comparison of Coronary Heart Disease Risk Prediction from Nation-Wide Survey
+### Model Comparison of Coronary Heart Disease Risk Prediction 
 
 **Code:** [Model_Comparison.Rmd](CHD_risk/ML_model_comparison/ML_Model_Comparison.Rmd)
 
@@ -68,7 +66,7 @@ This project aims to predict coronary heart disease (CHD) risk using data from t
 
 
 
-### Using unsupervised machine learning to identify performance profiles of F1 drivers over the past two decades 
+### Idenitfying F1 Driver Performance Profiles with Clustering
 
 **Code:** [F1_clustering](F1_clustering)
 
