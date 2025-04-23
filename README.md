@@ -10,7 +10,7 @@
 
     -   [Model Comparison of Coronary Heart Disease Risk Prediction](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (R)
 
-    -   Predicting CHD Risk with Convolutional Neural Network (Python)
+    -   [Predicting CHD Risk with Convolutional Neural Network](https://github.com/daphnenyyu/Code_Portfolio?tab=readme-ov-file#predicting-chd-risk-with-convolutional-neural-network) (Python)
 
     -   [Idenitfying F1 Driver Performance Profiles with Clustering](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#idenitfying-f1-driver-performance-profiles-with-clustering) (Python, SQL)
 
