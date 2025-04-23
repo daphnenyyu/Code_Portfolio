@@ -74,7 +74,7 @@
 
     - [Python] `pandas`, `matplotlib`, `PyTorch`, `sklearn`
 
-- **Results:**: Final CNN has a stable performance in precision, recall, F-score, accuracy, miss rate, and fall out rate. 
+- **Results:** Final CNN has a stable performance in precision, recall, F-score, accuracy, miss rate, and fall out rate. 
 
 
 ### Idenitfying F1 Driver Performance Profiles with Clustering
