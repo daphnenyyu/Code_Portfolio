@@ -4,65 +4,27 @@ Dataset downloaded from Kaggle example [Behavioral Risk Factor Surveillance Syst
 CNN model was adapted from: 
 > Soumyabrata Dev, Hewei Wang, Chidozie Shamrock Nwosu, Nishtha Jain, Bharadwaj Veeravalli, and Deepu John, A predictive analytics approach for stroke prediction using machine learning and neural networks, Healthcare Analytics, 2022.
 
-# Steps
 
-## 1. Data Cleaning
+# Methods: 
+Code of the model was adjusted to take in 3x5 tensor inputs instead of a 2x5 tensor inputs. Subsequent code was adjusted according to the input shape as well. The model contains the following layers: 
 
-## 2a. Design and implement convolutional neural network in Python
-
-
-## 2b. Compare machine learning models in R
-
-
-
-
-# Selected variables
-<u>Target Variable</u>
-- coronary heart disease: `chd`
-
-<u>Predictor Variables</u>
-
-Demographic variables
-
-    - sex: `sex`
-    - race: `race`
-    - age: `age5y`
-    - marital status: `ever_married`
-
-Socioeconomic status variables
-
-    - education: `education`
-    - income: `income``
-    - employment: `employment` 
-
-Health variables
-
-    - diabetes: `diabetes`
-    - hypertension: `hypertension`
-    - BMI: `BMI`
-
-Health-related risk behaviors
-
-    - smoking status: `smoke`
-    - vegetable consumption: `vegetable`
-        - *Consume Vegetables 1 or more times per day*
-    - fruit consumption: `fruit`
-        - *Consume Fruit 1 or more times per day*
-    - binge drinking times in the past month: `binge_drink`
-        - *Considering all types of alcoholic beverages, how many times during the past 30 days did you have 5 or more drinks for men or 4 or more drinks for women on an occasion?*
-    - exercise times in the past month: `exercise`
-        - *During the past month, other than your regular job, did you participate in any physical activities or exercises such as running, calisthenics, golf, gardening, or walking for exercise?*
+- torch.Size([32, 1, 3, 5]) - First convolutional layer with ReLu activation
+- torch.Size([32, 1, 3, 5]) - Second convolutional layer with ReLu activation
+- torch.Size([32, 8, 1, 4]) - A flatten layer 
+- torch.Size([32, 32]) - First linear layer with Relu activation
+- torch.Size([32, 16]) - Second linear layer with Sigmoid activation
 
 # Results 
 ## CNN performance metrics for each repeat 
-| Model               |   Repeat 1 |   Repeat 2 |   Repeat 3 |   Repeat 4 |   Repeat 5 |    Average |
-|:--------------------|-----------:|-----------:|-----------:|-----------:|-----------:|-----------:|
-| Precision           | 0.767132   |   0.771517 | 	0.778195 |	0.770552  |	0.772128   |    0.771905|
-| Recall              | 0.709877   |   0.699214 |   0.696970 |  0.704826  | 0.690236   |    0.700224|
-| F-score             | 0.737394   |   0.733588 |	0.735346 |	0.736225  |	0.728889   |	0.734289|
-| Accuracy            | 0.746126   |   0.744999 |	0.748098 |	0.746407  |	0.742181   |	0.745562|
-| Miss Rate           | 0.195242   |   0.202723 |	0.203390 |	0.198565  |	0.209567   |	0.201897|
-| Fall out rate       | 0.217317   |   0.208829 |	0.200340 |	0.211658  |	0.205433   |	0.208715|
+
+|               |   Repeat 1 |   Repeat 2 |   Repeat 3 |   Repeat 4 |   Repeat 5 |   Average |
+|:--------------|-----------:|-----------:|-----------:|-----------:|-----------:|----------:|
+| Precision     |   0.802118 |   0.800131 |   0.800656 |   0.8      |   0.796272 |  0.799835 |
+| Recall        |   0.696152 |   0.703619 |   0.701321 |   0.705342 |   0.71166  |  0.703619 |
+| F-score       |   0.745387 |   0.748778 |   0.747704 |   0.749695 |   0.751592 |  0.748631 |
+| Accuracy      |   0.766695 |   0.768385 |   0.767822 |   0.768949 |   0.769231 |  0.768216 |
+| Miss Rate     |   0.194414 |   0.189219 |   0.190826 |   0.187981 |   0.183883 |  0.189264 |
+| Fall out rate |   0.165376 |   0.169248 |   0.168142 |   0.169801 |   0.175332 |  0.16958  |
 
 ## Evaluation: Loss and Accuracy Plots
 ![Training and Validation Accuracy](plot/epochs.png)

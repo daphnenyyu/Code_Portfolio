@@ -6,3 +6,4 @@ data/
 *.zip
 .Rhistory
 *.DS_Store
+*.pt

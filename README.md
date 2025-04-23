@@ -10,6 +10,8 @@
 
     -   [Model Comparison of Coronary Heart Disease Risk Prediction](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#model-comparison-of-coronary-heart-disease-risk-prediction) (R)
 
+    -   Predicting CHD Risk with Convolutional Neural Network (Python)
+
     -   [Idenitfying F1 Driver Performance Profiles with Clustering](https://github.com/daphnenyyu/Code_Portfolio/blob/master/README.md#idenitfying-f1-driver-performance-profiles-with-clustering) (Python, SQL)
 
 
@@ -25,7 +27,11 @@
 
 - **Skills:** bash scripting, data analysis, hypothesis testing, post-hoc testing, sensitivity tests, data visualization
 
-- **Technology:** nextflow pipeline, dyplr, ggplot, lm, lmer, effects, glht
+- **Technology:** 
+
+    - Nextflow pipeline
+    
+    - [R] `dyplr`, `ggplot`, `lm`, `lmer`, `effects`, `glht`
 
 - **Results:** mtHg, not mtHz, is associated with cognitive function at midlife. Results remained robust in sensitivity analysis.
 
@@ -43,15 +49,32 @@
 
 - **Technology:** 
 
-    - [Python] dictionary mapping, pandas, matplotlib, seaborn
-    - [R] dyplr, ,table1, rpart, ranger, caret, xgboost, rocit, ciAUC, kable, ggplot
+    - [Python] dictionary mapping, `pandas`, `matplotlib`, `seaborn`
+
+    - [R] `dyplr`, ,`table1`, `rpart`, `ranger`, `caret`, `xgboost`, `rocit`, `ciAUC`, `kable`, `ggplot`
 
 - **Results:**
 
     -   XGBoost was identified as the best-performing model, with \~75.4% accuracy, 73.5 % precision, 79.5% recall and 76.3% F1-score. Recall was the the most crucial metric, indicating its potential as a pre-clinical screening model for early CHD risk detection and intervention.
     
     -   Feature importance analysis showed that age, hypertension, and employment were among the most important predictors across models.
-    
+
+
+### Predicting CHD Risk with Convolutional Neural Network 
+
+- **Code:** [CNN.ipynb](CHD_risk/CNN/CNN.ipynb)
+
+- **Goal:** Designed a convolutional neural network (CNN) to predict coronary hear disease
+
+- **Description:** CNN model was taken from a manuscript that attempted to use the CNN model to predict stroke risk with tabular EHR data. Model was adjusted to take in 3x5 tensor inputs instead of a 2x5 tensor inputs, with subsequent adjustments. 
+
+- **Skills:** CNN, model evaluation
+
+- **Technology:** 
+
+    - [Python] `pandas`, `matplotlib`, `PyTorch`, `sklearn`
+
+- **Results:**: Final CNN has a stable performance in precision, recall, F-score, accuracy, miss rate, and fall out rate. 
 
 
 ### Idenitfying F1 Driver Performance Profiles with Clustering

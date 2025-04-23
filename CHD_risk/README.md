@@ -7,7 +7,7 @@ CNN model was adapted from:
 
 ## 1. Data Cleaning
 
-**Code:** BRFSS_clean_data.ipynb
+**Code:** [Clean_Data.ipynb](data_cleaning/Clean_Data.ipynb)
 
 **Description:** Variables were selected, cleaned, and downsampled using for subsequent model training.
 
@@ -25,9 +25,9 @@ CNN model was adapted from:
 
 The data had an imbalance between those that have coronary heart disease cases and those that do not. Without balancing data, we risk training a model that would predict non-cases better. Selected dataset must be downsampled to create balanced data for training. 
 
-![imbalanced](plot/imbalanceddata.png)
+![imbalanced](CNN/plot/imbalanceddata.png)
 
-![balanced](plot/balanceddata.png)
+![balanced](CNN/plot/balanceddata.png)
 
 
 **Result:** The original BRFSS data included 441456 questionnaire answers of 330 varaibles. The final balanced data was reduced to 11830 rows of data that included 1 target variable and 15 predictor variables due to unanswered questtions and excluded categories in some variables. 
@@ -39,38 +39,30 @@ The data had an imbalance between those that have coronary heart disease cases a
 
 #### CNN performance metrics for each repeat 
 
-| Model               |   Repeat 1 |   Repeat 2 |   Repeat 3 |   Repeat 4 |   Repeat 5 |    Average |
-|:--------------------|-----------:|-----------:|-----------:|-----------:|-----------:|-----------:|
-| Precision           | 0.767132   |   0.771517 | 	0.778195 |	0.770552  |	0.772128   |    0.771905|
-| Recall              | 0.709877   |   0.699214 |   0.696970 |  0.704826  | 0.690236   |    0.700224|
-| F-score             | 0.737394   |   0.733588 |	0.735346 |	0.736225  |	0.728889   |	0.734289|
-| Accuracy            | 0.746126   |   0.744999 |	0.748098 |	0.746407  |	0.742181   |	0.745562|
-| Miss Rate           | 0.195242   |   0.202723 |	0.203390 |	0.198565  |	0.209567   |	0.201897|
-| Fall out rate       | 0.217317   |   0.208829 |	0.200340 |	0.211658  |	0.205433   |	0.208715|
+|               |   Repeat 1 |   Repeat 2 |   Repeat 3 |   Repeat 4 |   Repeat 5 |   Average |
+|:--------------|-----------:|-----------:|-----------:|-----------:|-----------:|----------:|
+| Precision     |   0.802118 |   0.800131 |   0.800656 |   0.8      |   0.796272 |  0.799835 |
+| Recall        |   0.696152 |   0.703619 |   0.701321 |   0.705342 |   0.71166  |  0.703619 |
+| F-score       |   0.745387 |   0.748778 |   0.747704 |   0.749695 |   0.751592 |  0.748631 |
+| Accuracy      |   0.766695 |   0.768385 |   0.767822 |   0.768949 |   0.769231 |  0.768216 |
+| Miss Rate     |   0.194414 |   0.189219 |   0.190826 |   0.187981 |   0.183883 |  0.189264 |
+| Fall out rate |   0.165376 |   0.169248 |   0.168142 |   0.169801 |   0.175332 |  0.16958  |
 
 #### Evaluation: Loss and Accuracy Plots
 ![Training and Validation Accuracy](plot/epochs.png)
 
-### Limitations
-
-1. Kernel Size: Kernel size of the second convolutional layer was changed from 2x2 to 3x2. 
-
-2. Interpretability: Although this project shows that results are reproducible, it is difficult to interpret the model in terms of variable importance to explain the prediction decisions of the model. 
-
-### Decisions & Trade-offs
-
-**Variable recoding:** Some variables were regrouped, which may lead to a decrease in resolution. 
-
-1. Hypertension and diabetes: Females who were only told to have the condition during pregnancy and those who were told to be borderline high risk for the conditions were excluded. 
-
-2. Marriage status: Marriage status were grouped into 0 = never married or 1 = have married.
-
-3. Smoking: Smoking was recoded into variable with 3 categories (never smoked, current smoker, former smoker). 
-
-**Learning rate:** Learning rate of the optimizer was decreased from 1e-4 in the original model to 1e-5. This may lead to more training time. However, 100 epochs has been shown to be enough to reach a plateau in accuracy. 
-
 
 ## 2b. Compare machine learning models in R
+
+**Aim:** Create a cost-effective and personalized machine learning model for predicting coronary heart disease (CHD) risk using non-clinical data
+
+**Introduction:** This project aims to predict coronary heart disease (CHD) risk using data from the 2015 Behavioral Risk Factor Surveillance System (BRFSS) survey. Key risk factors for CHD, including demographic, socioeconomic, health, and behavioral variables, were used to build predictive models. The project focused on balancing the dataset and applying machine learning techniques such as decision trees, random forests, and XGBoost to improve prediction accuracy and interpretability.
+
+**Results:**
+
+ -   XGBoost was identified as the best-performing model, with \~75.4% accuracy, 73.5 % precision, 79.5% recall and 76.3% F1-score. Recall was the the most crucial metric, indicating its potential as a pre-clinical screening model for early CHD risk detection and intervention.
+    
+-   Feature importance analysis showed that age, hypertension, and employment were among the most important predictors across models.
 
 
 
