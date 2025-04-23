@@ -10,3 +10,4 @@ torch
 sqlalchemy
 ydata_profiling
 ipython
+ipywidgets
