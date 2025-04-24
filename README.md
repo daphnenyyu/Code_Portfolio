@@ -94,7 +94,7 @@
 
     - [SQL] Joins, Common Table Expression, Temp Tables, Windows Functions, Aggregate Functions
     
-    - [Python] KMeans, GridSearchCV, StandardScaler, PCA, matplotlib
+    - [Python] `KMeans`, `StandardScaler`, `PCA`, `matplotlib`
 
 - **Results:** Using Kmeans clustering, we catagorized drivers into 6 categories : Top Performers, Above Average Veterans, Underdogs, Mediocre Drivers, Passive Drivers, and Worst Drivers. 
 
