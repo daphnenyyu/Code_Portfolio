@@ -51,7 +51,7 @@
 
     - [Python] dictionary mapping, `pandas`, `matplotlib`, `seaborn`
 
-    - [R] `dyplr`, ,`table1`, `rpart`, `ranger`, `caret`, `xgboost`, `rocit`, `ciAUC`, `kable`, `ggplot`
+    - [R] `dyplr`, `table1`, `rpart`, `ranger`, `caret`, `xgboost`, `rocit`, `ciAUC`, `kable`, `ggplot`
 
 - **Results:**
 
